@@ -8,8 +8,6 @@ This project implements a simple online marketplace using gRPC for communication
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 - Seller registration
