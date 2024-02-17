@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package market;
+
+service MarketService {
+    rpc RegisterSeller (SellerRequest) returns (SellerResponse);
+    rpc SellItem (SellItemRequest) returns (SellItemResponse);
+    rpc UpdateItem (UpdateItemRequest) returns (UpdateItemResponse);
+    rpc DeleteItem (DeleteItemRequest) returns (DeleteItemResponse);
+    rpc DisplaySellerItems (DisplaySellerItemsRequest) returns (DisplaySellerItemsResponse);
+    rpc SearchItem (SearchItemRequest) returns (SearchItemResponse);
+    rpc BuyItem (BuyItemRequest) returns (BuyItemResponse);
+    rpc AddToWishList (WishlistRequest) returns (WishlistResponse);
+    rpc RateItem (RateItemRequest) returns (RateItemResponse);
+    rpc NotifyClient (stream Item) returns (stream Item);
+}
+
+message SellerInfo {
+    string uuid = 1;
+    string address = 2;
+}
+
+message SellerRequest {
+    SellerInfo seller_info = 1;
+}
+
+message SellerResponse {
+    string status = 1;
+}
+
+message Item {
+    SellerInfo seller_info = 1;
+    string id = 2;
+    string name = 3;
+    string category = 4;
+    string description = 5;
+    float price = 6;
+    int32 quantity = 7;
+    float rating = 8;
+}
+
+message ItemResponse {
+    string status = 1;
+    string uuid = 2;
+}
+
+message SellItemRequest {
+    SellerInfo seller_info = 1;
+    string product_name = 2;
+    string category = 3;
+    int32 quantity = 4;
+    string description = 5;
+    float price_per_unit = 6;
+}
+
+message SellItemResponse {
+    string status = 1;
+}
+
+message UpdateItemRequest {
+    SellerInfo seller_info = 1;
+    string item_id = 2;
+    float new_price = 3;
+    int32 new_quantity = 4;
+}
+
+message UpdateItemResponse {
+    string status = 1;
+}
+
+message DeleteItemRequest {
+    string id = 1;
+}
+
+message DeleteItemResponse {
+    string status = 1;
+}
+
+message DisplaySellerItemsRequest {
+    SellerInfo seller_info = 1;
+}
+
+message DisplaySellerItemsResponse {
+    string items = 1;
+}
+
+message SearchItemRequest {
+    string name = 1;
+    string category = 2;
+}
+
+message SearchItemResponse {
+    string items = 1;
+}
+
+message BuyItemRequest {
+    string uuid = 1;
+    string id = 2;
+    int32 quantity = 3;
+    string address = 4;
+}
+
+message BuyItemResponse {
+    string status = 1;
+}
+
+message WishlistRequest {
+    string uuid = 1;
+    string id = 2;
+    string address = 3;
+}
+
+message WishlistResponse {
+    string status = 1;
+}
+
+message RateItemRequest {
+    string uuid = 1;
+    string id = 2;
+    int32 rating = 3;
+    string address = 4;
+}
+
+message RateItemResponse {
+    string status = 1;
+}
