@@ -1,4 +1,5 @@
 import grpc
+import numpy as np
 from concurrent import futures
 import market_pb2
 import market_pb2_grpc
@@ -55,17 +56,17 @@ class MarketService(market_pb2_grpc.MarketServiceServicer):
     def UpdateItem(self, request, context):
         seller_address = request.seller_info.address
         seller_uuid = request.seller_info.uuid
+        item_id = int(request.item_id)
+        new_price = request.new_price
+        new_quantity = request.new_quantity
         print(f"Update Item {item_id} request from {seller_address}")
 
         if seller_address in self.seller_registry and self.seller_registry[seller_address] == seller_uuid:
-            item_id = request.item_id
-            new_price = request.new_price
-            new_quantity = request.new_quantity
-
             if item_id in self.items_for_sale:
-                self.items_for_sale[item_id].pricePerUnit = new_price
-                self.items_for_sale[item_id].quantity = new_quantity
-
+                item_details = self.items_for_sale[item_id]
+                item_details.price = new_price
+                item_details.quantity = new_quantity            
+                    
                 return market_pb2.UpdateItemResponse(status = "SUCCESS")
             else:
                 return market_pb2.UpdateItemResponse(status = "FAIL")
@@ -76,11 +77,10 @@ class MarketService(market_pb2_grpc.MarketServiceServicer):
     def DeleteItem(self, request, context):
         seller_address = request.seller_info.address
         seller_uuid = request.seller_info.uuid
+        item_id = int(request.id)
         print(f"Delete Item {item_id} request from {seller_address}")
 
         if seller_address in self.seller_registry and self.seller_registry[seller_address] == seller_uuid:
-            item_id = request.id
-
             if item_id in self.items_for_sale:
                 del self.items_for_sale[item_id]
 
@@ -104,7 +104,7 @@ class MarketService(market_pb2_grpc.MarketServiceServicer):
 
             return market_pb2.DisplaySellerItemsResponse(items = items_response)
         else:
-            return market_pb2.DisplaySellerItemsResponse(items_response = "FAIL")
+            return market_pb2.DisplaySellerItemsResponse(items = "FAIL")
     
     
     def SearchItem(self, request, context):
@@ -159,16 +159,34 @@ class MarketService(market_pb2_grpc.MarketServiceServicer):
     
     def RateItem(self, request, context):
         buyer_address = request.address
+        uuid = request.uuid
         item_id = request.id
         rating = request.rating
-        print(f"{buyer_address} rated item {item_id} with {rating} stars.")
 
         try:
-            if (buyer_address, item_id) in self.buyer_ratings:
+            if (item_id, uuid) in self.buyer_ratings:
                 return market_pb2.RateItemResponse(status = "FAIL")
-
+            
             if 0 <= rating <= 5:
-                self.buyer_ratings.add((buyer_address, item_id))
+                self.buyer_ratings[item_id] = []
+                temp = market_pb2.RateItem(
+                    item_id = item_id,
+                    uuid = uuid,
+                    rating = rating,
+                    address = buyer_address
+                )
+                
+                self.buyer_ratings[item_id].append(temp)
+                rating = 0
+                
+                for rate in self.buyer_ratings[item_id]:
+                    rating += rate.rating
+                
+                for id, item in self.items_for_sale.items():
+                    if id == item_id:
+                        item.rating = rating
+                
+                print(f"{buyer_address} rated item {item_id} with {rating} stars.")
 
                 return market_pb2.RateItemResponse(status = "SUCCESS")
             else:

@@ -16,9 +16,9 @@ class SellerClient:
 
     def register_seller(self):
         request = market_pb2.SellerRequest(
-            seller_info=market_pb2.SellerInfo(
-                address=self.seller_address,
-                uuid=self.seller_uuid
+            seller_info = market_pb2.SellerInfo(
+                address = self.seller_address,
+                uuid = self.seller_uuid
             )
         )
 
@@ -31,15 +31,15 @@ class SellerClient:
 
     def sell_item(self, item_details):
         request = market_pb2.SellItemRequest(
-            seller_info=market_pb2.SellerInfo(
-                address=self.seller_address,
-                uuid=self.seller_uuid
+            seller_info = market_pb2.SellerInfo(
+                address = self.seller_address,
+                uuid = self.seller_uuid
             ),
-            product_name=item_details['name'],
-            category=item_details['category'],
-            quantity=item_details['quantity'],
-            description=item_details['description'],
-            price_per_unit=item_details['price']
+            product_name = item_details['name'],
+            category = item_details['category'],
+            quantity = item_details['quantity'],
+            description = item_details['description'],
+            price_per_unit = item_details['price']
         )
 
         try:
@@ -49,29 +49,30 @@ class SellerClient:
             print("FAIL")
 
     
-    def update_item(self, item_id, new_price, new_quantity):
+    def update_item(self, id, new_price, new_quantity):
         request = market_pb2.UpdateItemRequest(
-            seller_info=market_pb2.SellerInfo(
-                address=self.seller_address,
-                uuid=self.seller_uuid
+            seller_info = market_pb2.SellerInfo(
+                address = self.seller_address,
+                uuid = self.seller_uuid
             ),
-            item_id=item_id,
-            new_price=new_price,
-            new_quantity=new_quantity
+            item_id = id,
+            new_price = new_price,
+            new_quantity = new_quantity
         )
 
         try:
             response = self.stub.UpdateItem(request)
             print(f"{response.status}")
         except grpc.RpcError as e:
+            print(e)
             print("FAIL")
     
     
     def DisplaySellerItems(self):
-        request = market_pb2.UpdateItemRequest(
-            seller_info=market_pb2.SellerInfo(
-                address=self.seller_address,
-                uuid=self.seller_uuid
+        request = market_pb2.DisplaySellerItemsRequest(
+            seller_info = market_pb2.SellerInfo(
+                address = self.seller_address,
+                uuid = self.seller_uuid
             )
         )
         
@@ -84,11 +85,11 @@ class SellerClient:
 
     def delete_item(self, item_id):
         request = market_pb2.DeleteItemRequest(
-            seller_info=market_pb2.SellerInfo(
-                address=self.seller_address,
-                uuid=self.seller_uuid
+            seller_info = market_pb2.SellerInfo(
+                address = self.seller_address,
+                uuid = self.seller_uuid
             ),
-            item_id=item_id
+            id = item_id
         )
 
         try:
@@ -139,11 +140,15 @@ def SellerService():
             }
             seller_client.sell_item(item_details)
         elif inp == 3:
-            pass
+            id = str(input("Product ID: "))
+            price = float(input("Product New Price: "))
+            quantity = int(input("Product New Quantity: "))
+            seller_client.update_item(id, price, quantity)
         elif inp == 4:
-            pass
+            seller_client.DisplaySellerItems()
         elif inp == 5:
-            pass
+            id = input("Product ID to delete: ")
+            seller_client.delete_item(id)
         elif inp == 6:
             break
         else:

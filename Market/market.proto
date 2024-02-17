@@ -69,7 +69,8 @@ message UpdateItemResponse {
 }
 
 message DeleteItemRequest {
-    string id = 1;
+    SellerInfo seller_info = 1;
+    string id = 2;
 }
 
 message DeleteItemResponse {
@@ -112,6 +113,13 @@ message WishlistRequest {
 
 message WishlistResponse {
     string status = 1;
+}
+
+message RateItem {
+    string item_id = 1;
+    string uuid = 2;
+    int32 rating = 3;
+    string address = 4;
 }
 
 message RateItemRequest {
